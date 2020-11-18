@@ -11,6 +11,7 @@ import android.content.ContentUris
 import android.database.Cursor
 import kotlinx.android.synthetic.main.activity_main.*
 import android.os.Handler
+import android.support.design.widget.Snackbar
 import java.util.*
 
 
@@ -36,11 +37,10 @@ class MainActivity : AppCompatActivity() {
                 // 許可されている
                 getContentsInfo()
             } else {
-                // 許可されていないので許可ダイアログを表示する
-                requestPermissions(
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    PERMISSIONS_REQUEST_CODE
-                )
+                //許可されていないのでボタンを押せないようにする
+                go_button.isEnabled = false
+                back_button.isEnabled = false
+                play_stop_button.isEnabled = false
             }
             // Android 5系以下の場合
         } else {
@@ -50,16 +50,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         go_button.setOnClickListener {
-            if (cursor?.moveToNext() == false) {
-                cursor?.moveToFirst()
+            if (cursor != null && cursor!!.count > 0) {
+                if (cursor?.moveToNext() == false) {
+                    cursor?.moveToFirst()
+                }
+
+                val fieldIndex = cursor?.getColumnIndex(MediaStore.Images.Media._ID)
+                val id = cursor?.getLong(fieldIndex!!)
+                val imageUri =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id!!)
+                imageView.setImageURI(imageUri)
+            }else {
+                Snackbar.make(it, "スマホに画像がありません", Snackbar.LENGTH_INDEFINITE)
+                .setAction("Action"){
+                    Log.d("UI_PARTS", "Snackbarをタップした")
+                }.show()
+
             }
-
-            val fieldIndex = cursor?.getColumnIndex(MediaStore.Images.Media._ID)
-            val id = cursor?.getLong(fieldIndex!!)
-            val imageUri =
-                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id!!)
-            imageView.setImageURI(imageUri)
-
 
         }
 
