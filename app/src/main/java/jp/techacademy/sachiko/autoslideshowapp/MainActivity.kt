@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
                 // 許可されている
                 getContentsInfo()
             } else {
+                // 許可されていないので許可ダイアログを表示する
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE)
                 //許可されていないのでボタンを押せないようにする
                 go_button.isEnabled = false
                 back_button.isEnabled = false
